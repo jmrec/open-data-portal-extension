@@ -11,4 +11,4 @@ wheels/
 
 # Zensical
 site/
-**/*.private.md
+**/*.private.*
