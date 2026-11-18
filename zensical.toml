@@ -1,5 +1,5 @@
 [project]
-site_url = "https://www.datax.jmrecondo.com"
+site_url = "https://www.datax-docs.jmrecondo.com"
 site_name = "Open Data Portal Extension"
 # site_description = "Your project description"
 site_author = "Juan Miguel Recondo"
@@ -8,11 +8,12 @@ site_author = "Juan Miguel Recondo"
 
 repo_url = "https://github.com/jmrec/open-data-portal-extension"
 repo_name = "jmrec/open-data-portal-extension"
-# edit_uri = "edit/main/docs/"
+edit_uri = "raw/main/docs/"
 
 nav = [
   { "Get started" = "index.md" },
   { "About the project" = "about.md" },
+  { "Contributing" = "contributors.md" },
 ]
 
 # extra_css = ["stylesheets/extra.css"]
