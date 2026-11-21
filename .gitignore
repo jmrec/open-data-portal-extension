@@ -12,3 +12,10 @@ wheels/
 # Zensical
 site/
 **/*.private.*
+
+# PSGC source CSVs and built reference databases
+data/
+*.duckdb
+
+# MacOS
+.DS_Store

@@ -1,0 +1,26 @@
+{
+  "dataset": "openhalalan_winners",
+  "psgc_version": "v1.0.1",
+  "detected": {
+    "Province": "province",
+    "City": "city_municipality",
+    "Region": "region"
+  },
+  "rows": 157333,
+  "distinct_places": 2147,
+  "rows_by_status": {
+    "auto": 151984,
+    "needs_review": 5297,
+    "no_place": 52
+  },
+  "places_by_status": {
+    "auto": 1876,
+    "needs_review": 271,
+    "no_place": 1
+  },
+  "auto_rate": 0.966,
+  "auto_rows_by_level": {
+    "city_municipality": 138841,
+    "province": 13143
+  }
+}

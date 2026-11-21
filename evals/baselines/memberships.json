@@ -1,0 +1,24 @@
+{
+  "dataset": "memberships",
+  "psgc_version": "v1.0.1",
+  "detected": {
+    "region": "region",
+    "province": "province",
+    "locality": "city_municipality"
+  },
+  "rows": 86234,
+  "distinct_places": 1760,
+  "rows_by_status": {
+    "auto": 85676,
+    "needs_review": 558
+  },
+  "places_by_status": {
+    "auto": 1747,
+    "needs_review": 13
+  },
+  "auto_rate": 0.9935,
+  "auto_rows_by_level": {
+    "province": 27233,
+    "city_municipality": 58443
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "dataset": "critical_facilities",
+  "psgc_version": "v1.0.1",
+  "detected": {},
+  "rows": 55829,
+  "distinct_places": 55353,
+  "rows_by_status": {
+    "auto": 55747,
+    "needs_review": 82
+  },
+  "places_by_status": {
+    "auto": 55272,
+    "needs_review": 81
+  },
+  "auto_rate": 0.9985,
+  "auto_rows_by_level": {
+    "barangay": 55747
+  },
+  "points": {
+    "inside": 55272,
+    "not_found": 34,
+    "nearby": 47
+  }
+}

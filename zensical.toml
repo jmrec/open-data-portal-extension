@@ -13,6 +13,7 @@ edit_uri = "raw/main/docs/"
 nav = [
   { "Get started" = "index.md" },
   { "About the project" = "about.md" },
+  { "Architecture" = "architecture.md" },
   { "Contributing" = "contributors.md" },
 ]
 
