@@ -13,7 +13,7 @@
       "**/index.html",
       "**/vite.config.ts",
       "!**/src/routeTree.gen.ts",
-      "!**/src/data/psgc-hierarchy.json",
+      "!**/src/components/ui/map.tsx",
       "!**/src/styles.css"
     ]
   },

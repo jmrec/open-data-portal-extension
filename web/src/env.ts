@@ -4,19 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     SERVER_URL: z.url().optional(),
-    DATABASE_PATH: z.string().default("data/beacon.sqlite"),
-    DATABASE_MIGRATIONS: z.string().default("drizzle"),
-
-    BENECO_UNSCHEDULED_OUTAGE_URL: z.url().optional(),
-    BENECO_SCHEDULED_OUTAGE_URL: z.url().optional(),
-    BENECO_UNSCHEDULED_PERIOD: z
-      .enum(["today", "this_week", "last_week"])
-      .default("today"),
-    BENECO_SCHEDULED_PERIOD: z
-      .enum(["today", "this_week", "last_week"])
-      .default("today"),
-    BENECO_AREA_CONCURRENCY: z.coerce.number().int().min(1).max(8).optional(),
-    BENECO_AREA_TELEMETRY_FILE: z.string().optional(),
+    CATALOG_PATH: z.string().default("../data/output/catalog.sqlite"),
   },
 
   clientPrefix: "VITE_",

@@ -55,7 +55,7 @@ function NotFound() {
         <p className="max-w-xl">
           The page you're looking for doesn't exist or has moved.
         </p>
-        <Link to="/" search={{ v: undefined }} className="nav-link">
+        <Link to="/" search={{}} className="nav-link">
           Back to Home
         </Link>
       </section>
@@ -67,6 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: a constant script that sets the theme before first paint */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>

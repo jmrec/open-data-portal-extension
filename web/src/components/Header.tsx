@@ -1,23 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { useSelector } from "@tanstack/react-store";
-import {
-  outagePeriodStore,
-  PERIOD_OPTIONS,
-  setOutagePeriod,
-} from "#/outages/outage-period.ts";
-import type { OutagePeriod } from "#/outages/types.ts";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
-  const period = useSelector(outagePeriodStore, (s) => s.period);
-
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
       <nav className="flex justify-between items-center gap-x-3 gap-y-2 py-3 sm:py-4">
         <h2 className="flex-shrink-0 text-base font-semibold tracking-tight">
           <Link
             to="/"
-            search={{ v: undefined }}
+            search={{}}
             className="items-center px-3 py-1.5 text-sm text-[var(--sea-ink)] no-underline sm:px-4 sm:py-2"
           >
             Beacon
@@ -27,18 +18,11 @@ export default function Header() {
         <div className="flex items-center gap-x-4 gap-y-1 text-sm font-semibold">
           <Link
             to="/"
-            search={{ v: undefined }}
+            search={{}}
             className="nav-link"
             activeProps={{ className: "nav-link is-active" }}
           >
             Map
-          </Link>
-          <Link
-            to="/outages"
-            className="nav-link"
-            activeProps={{ className: "nav-link is-active" }}
-          >
-            Outages
           </Link>
           <Link
             to="/about"
@@ -50,29 +34,13 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <label className="flex items-center gap-1.5 text-xs font-semibold text-[var(--sea-ink-soft)]">
-            <span className="hidden sm:inline">Period</span>
-            <select
-              value={period}
-              onChange={(e) => setOutagePeriod(e.target.value as OutagePeriod)}
-              className="h-8 rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] px-2 text-xs font-semibold text-[var(--sea-ink)] outline-none"
-              aria-label="Outage period"
-            >
-              {PERIOD_OPTIONS.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
           <a
-            href="https://github.com/jmrec/beacon"
+            href="https://github.com/jmrec/open-data-portal-extension"
             target="_blank"
             rel="noreferrer"
             className="hidden rounded-xl p-2 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)] sm:block"
           >
-            <span className="sr-only">Go to Beacon GitHub</span>
+            <span className="sr-only">View the source on GitHub</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" width="24" height="24">
               <path
                 fill="currentColor"

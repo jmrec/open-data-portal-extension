@@ -1,18 +1,11 @@
-> [!IMPORTANT] Disclaimer
-> Beacon is an independent, non-commercial personal project. It is **not affiliated with, endorsed by, or sponsored by** BENECO (Benguet Electric Cooperative) or the University of the Cordilleras, and neither organization has reviewed or approved this site.
->
-> Outage data is taken from BENECO's public channels and may be delayed, incomplete, or inaccurate. It is provided for informational purposes only and should not be relied on for safety or other critical decisions. For authoritative information, always check BENECO's [official website](https://beneco.com.ph/) or [Facebook page](https://www.facebook.com/benguetelectric).
->
-> "BENECO" and other organization names are trademarks of their respective owners and are used here for identification only.
+Philippine open data is published by many agencies, and each writes place names its own way: "Sto. Niño" or "Santo Niño", a town that has since become a city, one of hundreds of barangays named Poblacion. While datasets carry only free-text names, each one stands alone.
 
-Beacon was the name of my group's capstone project at the University of the Cordilleras. For that project, BENECO was our industry partner. Benguet's electrical grid, including Baguio City, is managed by BENECO. In interviews with the cooperative, it was identified that their system's customer-facing side is lacking — the public can't easily see what an outage means for their area.
-
-This site is my own version of that idea, rebuilt as a solo project to **make BENECO's outage data more accessible and easier to understand**. The name carried over — Beacon is just derived from BENECO.
+Beacon shows what changes once every row carries a **PSGC code**, the Philippine Standard Geographic Code the PSA assigns to each region, province, city, municipality and barangay. Pick a place on the map and you see every dataset with rows there, side by side.
 
 ## How it works
 
-Every outage on the site goes through three steps:
+1. **Tag.** The tagger in this repository reads each dataset in its manifest, finds the place columns, and matches them to PSGC codes, including old names and boundaries. A match it isn't sure of goes to review instead of being guessed.
+2. **Roll up.** `just export` counts each tagged row at its barangay, city or municipality, province and region. A highly urbanized city counts in the province it sits in (the City of Baguio in Benguet) even though its code doesn't contain the province's.
+3. **Show.** This site reads that catalog. The boundaries come from the PSGC shapefiles, built into vector tiles in `boundaries/`.
 
-1. **Collect** — pull outages (`all` or `scheduled`) from BENECO's public API for the period selected (`today`, `this_week`, and `last_week`).
-2. **Resolve** — a LLM reads each written affected area and maps it into cities and barangays (with their respective `id` and PSGC code), choosing only from BENECO's actual service area and keeping anything it can't place as `unresolved`.
-3. **Display** — shade the affected barangays, municipalities, and provinces on the map, and list the same outages by status: `ongoing`, `scheduled`, `cancelled`, and `restored`.
+Counts include only rows the tagger placed automatically. Rows sent to review aren't on the map until someone checks them.

@@ -10,9 +10,6 @@ FROM node:24-trixie-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/dist ./dist
-# Applied on first connection; they also seed BENECO's service area.
-COPY --from=build /app/drizzle ./drizzle
-ENV DATABASE_PATH=/app/data/beacon.sqlite
-VOLUME /app/data
+ENV CATALOG_PATH=/app/catalog/catalog.sqlite
 EXPOSE 3000
 CMD ["node", "dist/server/index.mjs"]

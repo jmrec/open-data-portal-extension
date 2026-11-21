@@ -64,12 +64,13 @@ tiles *flags:
 web *args:
     pnpm -C web {{ args }}
 
-# Regenerate the PSGC parents the web app walks up with, from the reference database.
-web-psgc tag="v1.0.1":
-    uv run python scripts/export_psgc_hierarchy.py data/psgc-{{ tag }}.duckdb web/src/data/psgc-hierarchy.json
+# Browse the exported catalog in Datasette on http://localhost:8001, after `just export`.
+browse *flags:
+    uvx --from datasette==0.65.1 --with "setuptools<81" datasette --immutable data/output/catalog.sqlite {{ flags }}
 
 # Run the tagger, boundaries, and web tests.
 test:
     uv run pytest
     cd boundaries && uv run --package ph-administrative-boundaries pytest
+    pnpm -C web check
     pnpm -C web exec vitest run
