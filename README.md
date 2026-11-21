@@ -37,6 +37,19 @@ Each tagged copy goes to `data/output/<name>.csv` (or `output = "..."`, in
 `psgc_confidence`. The run reports the columns it detected, the auto-tag
 rate, and the places sent to review that affect the most rows.
 
+## View the results
+
+`just export` rolls every tagged dataset up by place into
+`data/output/catalog.sqlite`: each row counts at its barangay, city or
+municipality, province, and region. The web app in `web/` reads it:
+
+```bash
+just export
+just build-boundaries boundaries   # once: the map tiles
+just tiles -d                      # serve them on http://localhost:3080
+just web dev                       # http://localhost:3000
+```
+
 ## Try a file without the manifest
 
 ```bash

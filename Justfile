@@ -31,6 +31,10 @@ build-reference tag="v1.0.1" released_on="2026-10-12":
 run *args:
     uv run open-data-portal-extension run {{ args }}
 
+# Roll the tagged datasets up by place into the viewer's catalog, after `just run`.
+export *args:
+    uv run open-data-portal-extension export {{ args }}
+
 # Check the manifest's eval datasets against their baselines, e.g. `just eval --failures 10`.
 eval *args:
     uv run open-data-portal-extension eval {{ args }}

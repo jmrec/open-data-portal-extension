@@ -13,6 +13,7 @@ import duckdb
 import typer
 
 from .. import evaluation
+from ..catalog import export_catalog
 from ..dataset import ColumnDetector
 from ..manifest import DEFAULT_MANIFEST, DatasetConfig, Manifest, load_manifest
 from ..models.psgc import GeoLevel, PsgcSnapshot
@@ -223,6 +224,61 @@ def run(
             typer.echo(f"Wrote {dataset.output}", err=True)
     finally:
         store.close()
+
+
+@app.command()
+def export(
+    names: Annotated[
+        list[str] | None,
+        typer.Argument(
+            help="Datasets to export. Defaults to every one in the manifest."
+        ),
+    ] = None,
+    manifest: ManifestOption = DEFAULT_MANIFEST,
+    output: Annotated[
+        Path | None,
+        typer.Option(
+            "--output",
+            "-o",
+            help="Catalog to write (default: data/output/catalog.sqlite by the manifest).",
+            show_default=False,
+        ),
+    ] = None,
+    db: DbOption = None,
+) -> None:
+    """Write the tagged datasets, rolled up by place, to a catalog for the viewer."""
+    config = _load_manifest_or_exit(manifest)
+    datasets = _select_or_exit(config, names)
+    reference = (
+        db
+        or config.reference.db
+        or Path(os.environ.get("PSGC_REFERENCE_DB", DEFAULT_DB))
+    )
+    if not reference.exists():
+        typer.echo(
+            f"No reference database at {reference}. Run `just build-reference` first.",
+            err=True,
+        )
+        raise typer.Exit(1)
+    out = output or manifest.resolve().parent / "data/output/catalog.sqlite"
+
+    summary = export_catalog(datasets, reference, out)
+    for name, rows in summary.datasets.items():
+        typer.echo(f"{name}: {rows} tagged rows", err=True)
+    for name, rows in summary.unknown_codes.items():
+        typer.echo(
+            f"Warning: {name}: {rows} rows have codes not in the reference; skipped",
+            err=True,
+        )
+    if summary.missing:
+        typer.echo(
+            f"Skipped, not tagged yet: {', '.join(summary.missing)} (run `just run`)",
+            err=True,
+        )
+    if not summary.datasets:
+        typer.echo("Nothing to export.", err=True)
+        raise typer.Exit(1)
+    typer.echo(f"Wrote {summary.out}", err=True)
 
 
 @app.command("eval")
