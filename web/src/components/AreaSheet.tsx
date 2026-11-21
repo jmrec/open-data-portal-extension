@@ -12,13 +12,13 @@ import {
   statusKey,
 } from "#/outages/outage-status";
 import type { Outage, OutageFeed } from "#/outages/types.ts";
-import type { Pcode } from "#/providers/beneco/area-types.ts";
+import type { Psgc } from "#/providers/beneco/area-types.ts";
 import { benecoAreaConfig } from "../providers/beneco/area.ts";
 import type { AreaOverlayOutage } from "./area-overlay.ts";
 import {
   type AreaLevel,
   affectedAreasOf,
-  affectedPcodesOf,
+  affectedPsgcsOf,
   areaLevelOf,
   outagesAffecting,
   type SheetNode,
@@ -36,7 +36,7 @@ import {
 
 export interface MapHighlight {
   level: AreaLevel;
-  pcodes: Pcode[];
+  psgcs: Psgc[];
 }
 
 interface AreaOutageRow {
@@ -49,7 +49,7 @@ interface AreaOutageRow {
 
 interface AffectedAreaRow {
   id: string;
-  pcode?: Pcode;
+  psgc?: Psgc;
   name: string;
   context?: string;
   whole: boolean;
@@ -159,9 +159,9 @@ export default function AreaSheet({
 
   const areaRows = useMemo<AreaOutageRow[]>(() => {
     if (!top || top.kind !== "area") return EMPTY_AREAS;
-    const level = areaLevelOf(top.pcode);
+    const level = areaLevelOf(top.psgc);
     if (!level) return EMPTY_AREAS;
-    return outagesAffecting(resolvedAreas, level, top.pcode).map((o) =>
+    return outagesAffecting(resolvedAreas, level, top.psgc).map((o) =>
       outageRow(o, feed),
     );
   }, [top, resolvedAreas, feed]);
@@ -184,8 +184,8 @@ export default function AreaSheet({
       activeLevel,
       benecoAreaConfig.provinceName,
     ).map((a, i) => ({
-      id: a.pcode ?? `${a.name}-${i}`,
-      pcode: a.pcode,
+      id: a.psgc ?? `${a.name}-${i}`,
+      psgc: a.psgc,
       name: a.name,
       context: a.context,
       whole: a.whole,
@@ -197,9 +197,9 @@ export default function AreaSheet({
 
   const highlightOutage = (outage: AreaOverlayOutage | null) => {
     if (!outage) return onHighlight(null);
-    const pcodes = Array.from(affectedPcodesOf(outage, activeLevelRef.current));
+    const psgcs = Array.from(affectedPsgcsOf(outage, activeLevelRef.current));
     onHighlight(
-      pcodes.length > 0 ? { level: activeLevelRef.current, pcodes } : null,
+      psgcs.length > 0 ? { level: activeLevelRef.current, psgcs } : null,
     );
   };
 
@@ -214,10 +214,10 @@ export default function AreaSheet({
     ]);
   };
 
-  const drillArea = (pcode: string, name: string) => {
+  const drillArea = (psgc: string, name: string) => {
     onNodesChange([
       ...nodes,
-      { kind: "area", pcode, labels: { primary: name } },
+      { kind: "area", psgc, labels: { primary: name } },
     ]);
   };
 
@@ -286,7 +286,7 @@ export default function AreaSheet({
                 <span
                   key={
                     node.kind === "area"
-                      ? `a-${node.pcode}`
+                      ? `a-${node.psgc}`
                       : `o-${node.outageId}`
                   }
                   className="flex min-w-0 items-center gap-1"
@@ -422,18 +422,18 @@ export default function AreaSheet({
                         <tr
                           key={area.id}
                           onClick={() =>
-                            area.pcode && drillArea(area.pcode, area.name)
+                            area.psgc && drillArea(area.psgc, area.name)
                           }
                           onMouseEnter={() =>
-                            area.pcode
+                            area.psgc
                               ? onHighlight({
                                   level: activeLevel,
-                                  pcodes: [area.pcode],
+                                  psgcs: [area.psgc],
                                 })
                               : onHighlight(null)
                           }
                           className={`border-b border-[var(--line)] transition last:border-0 hover:bg-[var(--surface)] ${
-                            area.pcode
+                            area.psgc
                               ? "cursor-pointer"
                               : "cursor-default opacity-60"
                           }`}

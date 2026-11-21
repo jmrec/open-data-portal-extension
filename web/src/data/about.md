@@ -14,5 +14,5 @@ This site is my own version of that idea, rebuilt as a solo project to **make BE
 Every outage on the site goes through three steps:
 
 1. **Collect** — pull outages (`all` or `scheduled`) from BENECO's public API for the period selected (`today`, `this_week`, and `last_week`).
-2. **Resolve** — a LLM reads each written affected area and maps it into cities and barangays (with their respective `id` and `pcode`), choosing only from BENECO's actual service area and keeping anything it can't place as `unresolved`.
+2. **Resolve** — a LLM reads each written affected area and maps it into cities and barangays (with their respective `id` and PSGC code), choosing only from BENECO's actual service area and keeping anything it can't place as `unresolved`.
 3. **Display** — shade the affected barangays, municipalities, and provinces on the map, and list the same outages by status: `ongoing`, `scheduled`, `cancelled`, and `restored`.

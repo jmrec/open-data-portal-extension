@@ -4,8 +4,14 @@ import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { getClient } from "../../db.ts";
 import { barangays, municipalities } from "./area-schema.ts";
 
-type Municipality = Pick<typeof municipalities.$inferSelect, "id" | "name">;
-type Barangay = typeof barangays.$inferSelect & { municipality: string };
+type Municipality = Pick<
+  typeof municipalities.$inferSelect,
+  "id" | "name" | "psgc"
+>;
+type Barangay = Pick<
+  typeof barangays.$inferSelect,
+  "id" | "name" | "psgc" | "municipalityId"
+> & { municipality: string };
 
 let db: NeonHttpDatabase | undefined;
 
@@ -20,7 +26,11 @@ async function listMunicipalities(): Promise<Municipality[]> {
   const db = await getDb();
   if (!db) return [];
   return await db
-    .select({ id: municipalities.id, name: municipalities.name })
+    .select({
+      id: municipalities.id,
+      name: municipalities.name,
+      psgc: municipalities.psgc,
+    })
     .from(municipalities)
     .orderBy(municipalities.name);
 }
@@ -34,7 +44,11 @@ async function findMunicipality(
   const q = name.trim().toLowerCase();
   if (!q) return undefined;
 
-  const cols = { id: municipalities.id, name: municipalities.name };
+  const cols = {
+    id: municipalities.id,
+    name: municipalities.name,
+    psgc: municipalities.psgc,
+  };
 
   const exact = await db
     .select(cols)
@@ -64,7 +78,11 @@ async function suggestMunicipalities(
   const q = name.trim().toLowerCase();
   if (!q) return [];
   return await db
-    .select({ id: municipalities.id, name: municipalities.name })
+    .select({
+      id: municipalities.id,
+      name: municipalities.name,
+      psgc: municipalities.psgc,
+    })
     .from(municipalities)
     .where(
       sql`lower(${municipalities.name}) like ${`%${q}%`}
@@ -83,7 +101,7 @@ async function barangaysForMunicipality(
     .select({
       id: barangays.id,
       name: barangays.name,
-      pcode: barangays.pcode,
+      psgc: barangays.psgc,
       municipality: municipalities.name,
       municipalityId: municipalities.id,
     })

@@ -33,7 +33,7 @@ const resolvedOutage = {
           {
             id: 18,
             name: "Andres Bonifacio",
-            pcode: "PH1401102117",
+            psgc: "1430300117",
             scope: {
               kind: "included",
               areas: ["Bonifacio Rd. from Rex Hall"],
@@ -43,7 +43,7 @@ const resolvedOutage = {
           {
             id: 256,
             name: "Upper General Luna",
-            pcode: "PH1401102038",
+            psgc: "1430300038",
             scope: {
               kind: "included",
               areas: ["along Laurel St. near BLET"],
@@ -53,14 +53,14 @@ const resolvedOutage = {
           {
             id: 126,
             name: "Kabayanihan",
-            pcode: "PH1401102142",
+            psgc: "1430300142",
             scope: { kind: "whole" },
             confidence: "high",
           },
           {
             id: 221,
             name: "Session Road",
-            pcode: "PH1401102106",
+            psgc: "1430300106",
             scope: {
               kind: "included",
               areas: [
@@ -81,7 +81,7 @@ const resolvedOutage = {
           {
             id: 212,
             name: "Salud Mitra",
-            pcode: "PH1401102094",
+            psgc: "1430300094",
             scope: {
               kind: "included",
               areas: ["Happy Glen Loop", "Jungle Town"],
@@ -91,7 +91,7 @@ const resolvedOutage = {
           {
             id: 145,
             name: "Lower General Luna",
-            pcode: "PH1401102039",
+            psgc: "1430300039",
             scope: {
               kind: "included",
               areas: ["SLU-LES", "Notre Dame Hospital New and Old"],

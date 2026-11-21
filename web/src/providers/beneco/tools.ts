@@ -8,7 +8,13 @@ const listMunicipalitiesDef = toolDefinition({
     "List all municipalities/cities served by BENECO. Each barangay belongs to one municipality. Use this to learn about the municipalities, or when an area text names a municipality you want to confirm.",
   inputSchema: z.object({}),
   outputSchema: z.object({
-    municipalities: z.array(z.object({ id: z.number(), name: z.string() })),
+    municipalities: z.array(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        psgc: z.string().nullable(),
+      }),
+    ),
   }),
 });
 
@@ -28,14 +34,14 @@ const barangaysInMunicipalityDef = toolDefinition({
   }),
   outputSchema: z.object({
     matchedMunicipality: z
-      .object({ id: z.number(), name: z.string() })
+      .object({ id: z.number(), name: z.string(), psgc: z.string().nullable() })
       .nullable(),
     suggestions: z.array(z.string()),
     barangays: z.array(
       z.object({
         id: z.number(),
         name: z.string(),
-        pcode: z.string().nullable(),
+        psgc: z.string().nullable(),
       }),
     ),
   }),
@@ -57,12 +63,16 @@ const barangaysInMunicipalityTool = barangaysInMunicipalityDef.server(
 
     const barangays = await repo.barangaysForMunicipality(matched.id);
     return {
-      matchedMunicipality: { id: matched.id, name: matched.name },
+      matchedMunicipality: {
+        id: matched.id,
+        name: matched.name,
+        psgc: matched.psgc,
+      },
       suggestions: [],
       barangays: barangays.map((b) => ({
         id: b.id,
         name: b.name,
-        pcode: b.pcode,
+        psgc: b.psgc,
       })),
     };
   },

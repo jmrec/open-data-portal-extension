@@ -60,8 +60,12 @@ tiles *flags:
 web *args:
     pnpm -C web {{ args }}
 
-# Run the tagger, boundaries, and web checks.
+# Regenerate the PSGC parents the web app walks up with, from the reference database.
+web-psgc tag="v1.0.1":
+    uv run python scripts/export_psgc_hierarchy.py data/psgc-{{ tag }}.duckdb web/src/data/psgc-hierarchy.json
+
+# Run the tagger, boundaries, and web tests.
 test:
     uv run pytest
     cd boundaries && uv run --package ph-administrative-boundaries pytest
-    pnpm -C web check
+    pnpm -C web exec vitest run

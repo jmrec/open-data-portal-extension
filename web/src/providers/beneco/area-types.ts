@@ -9,7 +9,9 @@ import { AreaResolutionWireSchema } from "./area-llm";
 
 export type Confidence = "high" | "medium" | "low";
 
-export type Pcode = string;
+import type { Psgc } from "#/lib/psgc.ts";
+
+export type { Psgc };
 
 //
 // BARANGAY
@@ -32,7 +34,7 @@ function toBarangayScope(wire: BarangayScopeWire): BarangayScope {
 export interface BarangayAffect {
   id: number;
   name: string;
-  pcode?: Pcode;
+  psgc?: Psgc;
   confidence: Confidence;
   scope: BarangayScope;
 }
@@ -41,7 +43,7 @@ function toBarangayAffect(wire: BarangayAffectWire): BarangayAffect {
   return {
     id: wire.id,
     name: wire.name,
-    pcode: wire.pcode,
+    psgc: wire.psgc,
     confidence: wire.confidence,
     scope: toBarangayScope(wire.scope),
   };
@@ -72,7 +74,7 @@ function toMunicipalityScope(wire: MunicipalityScopeWire): MunicipalityScope {
 export interface MunicipalityAffect {
   id: number;
   name: string;
-  pcode?: Pcode;
+  psgc?: Psgc;
   confidence: Confidence;
   scope: MunicipalityScope;
 }
@@ -83,7 +85,7 @@ function toMunicipalityAffect(
   return {
     id: wire.id,
     name: wire.name,
-    pcode: wire.pcode,
+    psgc: wire.psgc,
     confidence: wire.confidence,
     scope: toMunicipalityScope(wire.scope),
   };

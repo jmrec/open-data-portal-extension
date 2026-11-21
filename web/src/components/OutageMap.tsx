@@ -6,7 +6,7 @@ import type {
 } from "maplibre-gl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { OutageFeed, OutagePeriod } from "#/outages/types.ts";
-import type { Pcode } from "#/providers/beneco/area-types.ts";
+import type { Psgc } from "#/providers/beneco/area-types.ts";
 import { env } from "../env";
 import { getPeriodLabel } from "../outages/outage-period";
 import AreaSheet, { type MapHighlight } from "./AreaSheet";
@@ -51,38 +51,46 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 
-export const LEVEL_PCODE_MAP = {
-  barangay: "adm4_pcode",
-  city: "adm3_pcode",
-  province: "adm2_pcode",
+export const LEVEL_PSGC_MAP = {
+  barangay: "adm4_psgc",
+  city: "adm3_psgc",
+  province: "adm2_psgc",
 } as const;
 
+// Layers of PH_Adm_Boundaries.pmtiles, built in boundaries/.
 export const LEVELS = [
   {
     id: "barangay",
-    pcodeKey: LEVEL_PCODE_MAP.barangay,
+    sourceLayer: "PH_Adm4_BgySubMuns",
+    psgcKey: LEVEL_PSGC_MAP.barangay,
     label: "Barangay",
     color: "#088",
   },
   {
     id: "city",
-    pcodeKey: LEVEL_PCODE_MAP.city,
+    sourceLayer: "PH_Adm3_MuniCities",
+    psgcKey: LEVEL_PSGC_MAP.city,
     label: "City/Mun.",
     color: "#088",
   },
   {
     id: "province",
-    pcodeKey: LEVEL_PCODE_MAP.province,
+    sourceLayer: "PH_Adm2_ProvDists",
+    psgcKey: LEVEL_PSGC_MAP.province,
     label: "Province",
     color: "#088",
   },
 ] as const;
 
 export type AdminLevel = (typeof LEVELS)[number]["id"];
-export type PcodeKey = (typeof LEVELS)[number]["pcodeKey"];
+export type PsgcKey = (typeof LEVELS)[number]["psgcKey"];
+
+const PROMOTE_ID = Object.fromEntries(
+  LEVELS.map((level) => [level.sourceLayer, level.psgcKey]),
+);
 
 const MAP_ID = {
-  source: "benguet",
+  source: "boundaries",
   boundaryFill: (level: AdminLevel) => `${level}-boundary-fill`,
   boundaryOutline: (level: AdminLevel) => `${level}-boundary-outline`,
   outageFill: (level: AdminLevel) => `${level}-area-fill`,
@@ -183,17 +191,17 @@ function updateBoundaryVisibility(
 type FillColorSpec = DataDrivenPropertyValueSpecification<string>;
 function buildColorExpression(
   counts: CountMap,
-  pcodeKey: PcodeKey,
+  psgcKey: PsgcKey,
 ): FillColorSpec {
   const pairs: (string | string[])[] = [];
 
-  for (const [pcode, tally] of counts) {
+  for (const [psgc, tally] of counts) {
     const color = tallyColor(tally);
-    if (color) pairs.push(pcode, color);
+    if (color) pairs.push(psgc, color);
   }
   if (pairs.length === 0) return "rgba(0,0,0,0)";
 
-  const expression = ["match", ["get", pcodeKey], ...pairs, "rgba(0,0,0,0)"];
+  const expression = ["match", ["get", psgcKey], ...pairs, "rgba(0,0,0,0)"];
   return expression as FillColorSpec;
 }
 
@@ -243,44 +251,44 @@ function buildPatternExpression(
   map: MapLibreMap,
   counts: CountMap,
   partial: Set<string>,
-  pcodeKey: PcodeKey,
+  psgcKey: PsgcKey,
 ): FillColorSpec {
   const pairs: (string | string[])[] = [];
-  for (const [pcode, tally] of counts) {
+  for (const [psgc, tally] of counts) {
     const color = tallyColor(tally);
     if (!color) continue;
-    const image = partial.has(pcode)
+    const image = partial.has(psgc)
       ? stripeImageFor(map, color)
       : solidImageFor(map, color);
-    pairs.push(pcode, image);
+    pairs.push(psgc, image);
   }
   if (pairs.length === 0) return "";
-  const expression = ["match", ["get", pcodeKey], ...pairs, ""];
+  const expression = ["match", ["get", psgcKey], ...pairs, ""];
   return expression as FillColorSpec;
 }
 
 function buildOpacityExpression(
   counts: CountMap,
   partial: Set<string>,
-  pcodeKey: PcodeKey,
+  psgcKey: PsgcKey,
   level: AdminLevel,
-  hoveredPcode?: string | null,
-  selectedPcode?: string | null,
+  hoveredPsgc?: string | null,
+  selectedPsgc?: string | null,
 ): DataDrivenPropertyValueSpecification<number> {
   const solid = OVERLAY_OPACITY[level];
   const striped = solid * 0.5;
   const pairs: (string | string[] | number)[] = [];
-  for (const pcode of counts.keys()) {
-    if (selectedPcode && pcode === selectedPcode) {
-      pairs.push(pcode, 0);
-    } else if (hoveredPcode && pcode === hoveredPcode) {
-      pairs.push(pcode, 0.9);
-    } else if (partial.has(pcode)) {
-      pairs.push(pcode, striped);
+  for (const psgc of counts.keys()) {
+    if (selectedPsgc && psgc === selectedPsgc) {
+      pairs.push(psgc, 0);
+    } else if (hoveredPsgc && psgc === hoveredPsgc) {
+      pairs.push(psgc, 0.9);
+    } else if (partial.has(psgc)) {
+      pairs.push(psgc, striped);
     }
   }
   if (pairs.length === 0) return solid;
-  const expression = ["match", ["get", pcodeKey], ...pairs, solid];
+  const expression = ["match", ["get", psgcKey], ...pairs, solid];
   return expression as DataDrivenPropertyValueSpecification<number>;
 }
 
@@ -289,7 +297,7 @@ function applyOverlayLayer(
   id: string,
   sourceLayer: string,
   before: string,
-  pcodeKey: PcodeKey,
+  psgcKey: PsgcKey,
   level: AdminLevel,
   counts: CountMap,
   visible: boolean,
@@ -312,20 +320,16 @@ function applyOverlayLayer(
     );
   }
   map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(
-    id,
-    "fill-color",
-    buildColorExpression(counts, pcodeKey),
-  );
+  map.setPaintProperty(id, "fill-color", buildColorExpression(counts, psgcKey));
   map.setPaintProperty(
     id,
     "fill-pattern",
-    buildPatternExpression(map, counts, partial, pcodeKey),
+    buildPatternExpression(map, counts, partial, psgcKey),
   );
   map.setPaintProperty(
     id,
     "fill-opacity",
-    buildOpacityExpression(counts, partial, pcodeKey, level),
+    buildOpacityExpression(counts, partial, psgcKey, level),
   );
 }
 
@@ -340,9 +344,9 @@ function updateAreaOverlays(
     applyOverlayLayer(
       map,
       MAP_ID.outageFill(level.id),
-      level.id,
+      level.sourceLayer,
       MAP_ID.boundaryOutline(level.id),
-      level.pcodeKey,
+      level.psgcKey,
       level.id,
       counts[level.id],
       show && activeLevel === level.id && counts[level.id].size > 0,
@@ -354,8 +358,8 @@ function updateAreaOverlays(
 function setAreaOpacity(
   map: MapLibreMap,
   level: AdminLevel,
-  hoveredPcode: string | null,
-  selectedPcode: string | null,
+  hoveredPsgc: string | null,
+  selectedPsgc: string | null,
   counts: AreaOverlayCounts,
   partial: AreaOverlayPartial,
 ) {
@@ -368,10 +372,10 @@ function setAreaOpacity(
     buildOpacityExpression(
       counts[level],
       partial[level],
-      cfg.pcodeKey,
+      cfg.psgcKey,
       level,
-      hoveredPcode,
-      selectedPcode,
+      hoveredPsgc,
+      selectedPsgc,
     ),
   );
 }
@@ -389,7 +393,7 @@ function ensureSelectOutline(map: MapLibreMap, level: AdminLevel) {
       id,
       type: "line",
       source: MAP_ID.source,
-      "source-layer": cfg.id,
+      "source-layer": cfg.sourceLayer,
       layout: { visibility: "none" },
       paint: {
         "line-color": "rgba(0,0,0,0)",
@@ -405,20 +409,20 @@ function ensureSelectOutline(map: MapLibreMap, level: AdminLevel) {
 function setSelectOutline(
   map: MapLibreMap,
   level: AdminLevel,
-  selectedPcode: Pcode | null,
+  selectedPsgc: Psgc | null,
 ) {
   const cfg = LEVELS.find((l) => l.id === level);
   if (!cfg) return;
   const id = ensureSelectOutline(map, level);
-  if (!id || !selectedPcode) {
+  if (!id || !selectedPsgc) {
     if (id && map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
     return;
   }
   map.setLayoutProperty(id, "visibility", "visible");
   map.setPaintProperty(id, "line-color", [
     "match",
-    ["get", cfg.pcodeKey],
-    selectedPcode,
+    ["get", cfg.psgcKey],
+    selectedPsgc,
     SELECT_COLOR,
     "rgba(0,0,0,0)",
   ]);
@@ -440,7 +444,7 @@ function ensureHighlightLayers(map: MapLibreMap) {
         id,
         type: "fill",
         source: MAP_ID.source,
-        "source-layer": level.id,
+        "source-layer": level.sourceLayer,
         layout: { visibility: "none" },
         paint: {
           "fill-color": HIGHLIGHT_COLOR,
@@ -460,17 +464,17 @@ function updateHighlightLayers(
     const id = highlightFillId(level.id);
     if (!map.getLayer(id)) continue;
     const active =
-      highlight && highlight.level === level.id && highlight.pcodes.length > 0;
+      highlight && highlight.level === level.id && highlight.psgcs.length > 0;
     if (active) {
       // Same match-expression technique the outage overlay uses, so ALL affected
-      // pcodes turn sky (a filter-based approach here was unreliable).
+      // psgcs turn sky (a filter-based approach here was unreliable).
       const pairs: (string | string[])[] = [];
-      for (const pcode of highlight.pcodes) {
-        pairs.push(pcode, HIGHLIGHT_COLOR);
+      for (const psgc of highlight.psgcs) {
+        pairs.push(psgc, HIGHLIGHT_COLOR);
       }
       const expression = [
         "match",
-        ["get", level.pcodeKey],
+        ["get", level.psgcKey],
         ...pairs,
         "rgba(0,0,0,0)",
       ] as unknown as FillColorSpec;
@@ -483,12 +487,12 @@ function updateHighlightLayers(
   }
 }
 
-function addBenguetSource(map: MapLibreMap) {
+function addBoundariesSource(map: MapLibreMap) {
   if (map.getSource(MAP_ID.source)) return;
   map.addSource(MAP_ID.source, {
     type: "vector",
     url: env.VITE_TILE_SERVER_URL,
-    promoteId: LEVEL_PCODE_MAP,
+    promoteId: PROMOTE_ID,
     encoding: "mlt",
     maxzoom: MAX_ZOOM,
   });
@@ -501,7 +505,7 @@ function addBoundaryLevels(map: MapLibreMap) {
         id: MAP_ID.boundaryFill(level.id),
         type: "fill",
         source: MAP_ID.source,
-        "source-layer": level.id,
+        "source-layer": level.sourceLayer,
         paint: { "fill-color": level.color, "fill-opacity": 0.1 },
       });
     }
@@ -510,7 +514,7 @@ function addBoundaryLevels(map: MapLibreMap) {
         id: MAP_ID.boundaryOutline(level.id),
         type: "line",
         source: MAP_ID.source,
-        "source-layer": level.id,
+        "source-layer": level.sourceLayer,
         paint: { "line-color": level.color, "line-width": 1 },
       });
     }
@@ -538,8 +542,8 @@ type RefreshArgs = {
   showBoundaries: boolean;
   counts: AreaOverlayCounts;
   partial: AreaOverlayPartial;
-  hoveredPcode: Pcode | null;
-  selectedPcode: Pcode | null;
+  hoveredPsgc: Psgc | null;
+  selectedPsgc: Psgc | null;
 };
 
 function refreshBoundaries(map: MapLibreMap, args: RefreshArgs) {
@@ -555,21 +559,21 @@ function refreshBoundaries(map: MapLibreMap, args: RefreshArgs) {
   setAreaOpacity(
     map,
     args.activeLevel,
-    args.hoveredPcode,
-    args.selectedPcode,
+    args.hoveredPsgc,
+    args.selectedPsgc,
     args.counts,
     args.partial,
   );
   setSelectOutline(
     map,
     args.activeLevel,
-    args.showBoundaries ? args.selectedPcode : null,
+    args.showBoundaries ? args.selectedPsgc : null,
   );
 }
 
 type SelectedArea = {
   level: AdminLevel;
-  pcode: Pcode;
+  psgc: Psgc;
   props: Record<string, unknown>;
 };
 
@@ -622,7 +626,7 @@ function BoundaryLayers({
     const m = map;
     if (!m || !isLoaded) return;
 
-    addBenguetSource(m);
+    addBoundariesSource(m);
     addBoundaryLevels(m);
     refreshBoundaries(m, {
       activeLevel: activeLevelRef.current,
@@ -630,10 +634,10 @@ function BoundaryLayers({
       showBoundaries: showBoundariesRef.current,
       counts: countsRef.current,
       partial: partialRef.current,
-      hoveredPcode: hoveredRef.current,
-      selectedPcode:
+      hoveredPsgc: hoveredRef.current,
+      selectedPsgc:
         selectedRef.current?.level === activeLevelRef.current
-          ? selectedRef.current.pcode
+          ? selectedRef.current.psgc
           : null,
     });
     ensureHighlightLayers(m);
@@ -653,12 +657,12 @@ function BoundaryLayers({
             y: e.point.y,
             props: (feature.properties ?? {}) as Record<string, unknown>,
           });
-          const raw = feature.properties?.[level.pcodeKey];
+          const raw = feature.properties?.[level.psgcKey];
           if (raw != null) {
             hoveredRef.current = String(raw);
             const sel =
               selectedRef.current?.level === level.id
-                ? selectedRef.current.pcode
+                ? selectedRef.current.psgc
                 : null;
             setAreaOpacity(
               m,
@@ -677,7 +681,7 @@ function BoundaryLayers({
         hoveredRef.current = null;
         const sel =
           selectedRef.current?.level === level.id
-            ? selectedRef.current.pcode
+            ? selectedRef.current.psgc
             : null;
         setAreaOpacity(
           m,
@@ -691,11 +695,11 @@ function BoundaryLayers({
       const click = (e: MapLayerMouseEvent) => {
         const feature = e.features?.[0];
         if (feature && activeLevelRef.current === level.id) {
-          const raw = feature.properties?.[level.pcodeKey];
+          const raw = feature.properties?.[level.psgcKey];
           if (raw != null) {
             onSelectRef.current({
               level: level.id,
-              pcode: String(raw),
+              psgc: String(raw),
               props: (feature.properties ?? {}) as Record<string, unknown>,
             });
           }
@@ -720,15 +724,15 @@ function BoundaryLayers({
   useEffect(() => {
     if (!map || !isLoaded || !map.getSource(MAP_ID.source)) return;
     const sel =
-      selected && selected.level === activeLevel ? selected.pcode : null;
+      selected && selected.level === activeLevel ? selected.psgc : null;
     refreshBoundaries(map, {
       activeLevel,
       showBaseMap,
       showBoundaries,
       counts,
       partial,
-      hoveredPcode: hoveredRef.current,
-      selectedPcode: sel,
+      hoveredPsgc: hoveredRef.current,
+      selectedPsgc: sel,
     });
   }, [
     map,
@@ -819,9 +823,9 @@ export default function OutageMap({
   const mapSelected: SelectedArea | null = useMemo(() => {
     const area = currentAreaNode(nodes);
     if (!area || area.kind !== "area") return null;
-    const level = areaLevelOf(area.pcode) as AdminLevel | null;
+    const level = areaLevelOf(area.psgc) as AdminLevel | null;
     if (!level) return null;
-    return { level, pcode: area.pcode, props: {} };
+    return { level, psgc: area.psgc, props: {} };
   }, [nodes]);
 
   useEffect(() => {
@@ -833,14 +837,14 @@ export default function OutageMap({
       nodes.length === 1 &&
       nodes[0] !== undefined &&
       isAreaNode(nodes[0]) &&
-      nodes[0].pcode === sel.pcode;
+      nodes[0].psgc === sel.psgc;
     onNodesChange(
       singleOpen
         ? []
         : [
             {
               kind: "area",
-              pcode: sel.pcode,
+              psgc: sel.psgc,
               labels: labelsFromProps(sel.props),
             },
           ],

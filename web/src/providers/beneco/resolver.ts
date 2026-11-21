@@ -33,7 +33,7 @@ Barangay scope.kind:
 Grounding (use tools sparingly, municipality by municipality)
 - list_municipalities: at most once.
 - list_barangays_in_municipality: ONCE per municipality named, then pick affected barangays from its returned list.
-- Use ONLY ids/pcodes returned by tools; never invent. Copy pcode when present.
+- Use ONLY ids and PSGC codes returned by tools; never invent. Copy psgc when present.
 - Then STOP — never call a tool more than once per municipality.
 
 Sub-areas vs barangays

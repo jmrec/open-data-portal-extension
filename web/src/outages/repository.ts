@@ -9,8 +9,16 @@ import type {
 } from "../providers/beneco/area-types.ts";
 import { resolvedOutages } from "./repository-schema.ts";
 
+/**
+ * Bump when the shape of a stored resolution changes, so every row is
+ * resolved again once. psgc-1: areas carry 10-digit PSGC codes, not pcodes.
+ */
+const RESOLUTION_VERSION = "psgc-1";
+
 export function fingerprintText(text: string): string {
-  return createHash("sha256").update(normalizeAreaText(text)).digest("hex");
+  return createHash("sha256")
+    .update(`${RESOLUTION_VERSION}\n${normalizeAreaText(text)}`)
+    .digest("hex");
 }
 
 function normalizeAreaText(text: string): string {

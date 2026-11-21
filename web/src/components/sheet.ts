@@ -1,31 +1,15 @@
+import { type AreaLevel, psgcAtLevel } from "#/lib/psgc.ts";
 import type {
   BarangayAffect,
   MunicipalityAffect,
 } from "#/providers/beneco/area-types.ts";
 import type { AreaOverlayOutage } from "./area-overlay.ts";
 
-export type AreaLevel = "barangay" | "city" | "province";
-
-export const PCODE_LEN: Record<AreaLevel, number> = {
-  province: 7,
-  city: 9,
-  barangay: 12,
-};
-
-export function areaLevelOf(pcode: string): AreaLevel | null {
-  if (pcode.length >= PCODE_LEN.barangay) return "barangay";
-  if (pcode.length >= PCODE_LEN.city) return "city";
-  if (pcode.length >= PCODE_LEN.province) return "province";
-  return null;
-}
-
-export function pcodeAtLevel(
-  pcode: string | undefined,
-  level: AreaLevel,
-): string | undefined {
-  const len = PCODE_LEN[level];
-  return pcode && pcode.length >= len ? pcode.slice(0, len) : undefined;
-}
+export {
+  type AreaLevel,
+  psgcAtLevel,
+  psgcLevel as areaLevelOf,
+} from "#/lib/psgc.ts";
 
 export interface AreaLabels {
   primary: string;
@@ -34,7 +18,7 @@ export interface AreaLabels {
 }
 
 export type SheetNode =
-  | { kind: "area"; pcode: string; labels: AreaLabels }
+  | { kind: "area"; psgc: string; labels: AreaLabels }
   | { kind: "outage"; outageId: number; scheduled: boolean };
 
 export function isAreaNode(
@@ -52,7 +36,7 @@ export function currentAreaNode(nodes: readonly SheetNode[]): SheetNode | null {
 
 export interface AffectedArea {
   level: AreaLevel;
-  pcode?: string;
+  psgc?: string;
   name: string;
   context?: string;
   whole: boolean;
@@ -84,12 +68,12 @@ export function affectedAreasOf(
   if (level === "barangay") {
     for (const mun of outage.municipalities) {
       for (const { barangay, whole } of includedBarangays(mun)) {
-        const key = barangay.pcode ?? `${mun.id}:${barangay.id}`;
+        const key = barangay.psgc ?? `${mun.id}:${barangay.id}`;
         if (seen.has(key)) continue;
         seen.add(key);
         result.push({
           level: "barangay",
-          pcode: barangay.pcode,
+          psgc: barangay.psgc,
           name: barangay.name,
           context: mun.name,
           whole,
@@ -102,16 +86,16 @@ export function affectedAreasOf(
   if (level === "city") {
     for (const mun of outage.municipalities) {
       if (mun.scope.kind === "excluded") continue;
-      // Prefer the municipality's own pcode, else derive it from its barangays.
-      const fromBarangays = includedBarangays(mun)[0]?.barangay.pcode;
-      const pcode =
-        pcodeAtLevel(mun.pcode, "city") ?? pcodeAtLevel(fromBarangays, "city");
-      const key = pcode ?? `mun:${mun.id}`;
+      // Prefer the municipality's own psgc, else derive it from its barangays.
+      const fromBarangays = includedBarangays(mun)[0]?.barangay.psgc;
+      const psgc =
+        psgcAtLevel(mun.psgc, "city") ?? psgcAtLevel(fromBarangays, "city");
+      const key = psgc ?? `mun:${mun.id}`;
       if (seen.has(key)) continue;
       seen.add(key);
       result.push({
         level: "city",
-        pcode,
+        psgc,
         name: mun.name,
         whole: mun.scope.kind === "whole",
       });
@@ -125,26 +109,26 @@ export function affectedAreasOf(
     (mun) => mun.scope.kind === "whole",
   );
   for (const mun of outage.municipalities) {
-    const pcode = pcodeAtLevel(mun.pcode, "province");
-    if (pcode) {
-      if (seenProv.has(pcode)) continue;
-      seenProv.add(pcode);
+    const psgc = psgcAtLevel(mun.psgc, "province");
+    if (psgc) {
+      if (seenProv.has(psgc)) continue;
+      seenProv.add(psgc);
       result.push({
         level: "province",
-        pcode,
+        psgc,
         name: provinceName,
         whole: anyWhole,
       });
       return result;
     }
-    const first = includedBarangays(mun)[0]?.barangay.pcode;
-    const derived = pcodeAtLevel(first, "province");
+    const first = includedBarangays(mun)[0]?.barangay.psgc;
+    const derived = psgcAtLevel(first, "province");
     if (derived) {
       if (seenProv.has(derived)) continue;
       seenProv.add(derived);
       result.push({
         level: "province",
-        pcode: derived,
+        psgc: derived,
         name: provinceName,
         whole: anyWhole,
       });
@@ -155,17 +139,17 @@ export function affectedAreasOf(
 }
 
 /**
- * The pcodes (at `level`) an outage affects — a fast membership view over
+ * The psgcs (at `level`) an outage affects — a fast membership view over
  * {@link affectedAreasOf}. Used for map highlighting.
  */
-export function affectedPcodesOf(
+export function affectedPsgcsOf(
   outage: AreaOverlayOutage,
   level: AreaLevel,
   provinceName = "Province",
 ): Set<string> {
   const out = new Set<string>();
   for (const area of affectedAreasOf(outage, level, provinceName)) {
-    if (area.pcode) out.add(area.pcode);
+    if (area.psgc) out.add(area.psgc);
   }
   return out;
 }
@@ -176,19 +160,19 @@ export function isActiveOverlay(outage: AreaOverlayOutage): boolean {
 }
 
 /**
- * The outages relevant to a given area (identified by its own-level pcode):
+ * The outages relevant to a given area (identified by its own-level psgc):
  * active/resolved-recent outages whose affected set at that level includes it.
  */
 export function outagesAffecting(
   outages: readonly AreaOverlayOutage[],
   level: AreaLevel,
-  pcode: string,
+  psgc: string,
 ): AreaOverlayOutage[] {
-  const want = pcodeAtLevel(pcode, level) ?? pcode;
+  const want = psgcAtLevel(psgc, level) ?? psgc;
   const result: AreaOverlayOutage[] = [];
   for (const outage of outages) {
     if (!isActiveOverlay(outage)) continue;
-    if (affectedPcodesOf(outage, level).has(want)) result.push(outage);
+    if (affectedPsgcsOf(outage, level).has(want)) result.push(outage);
   }
   return result;
 }

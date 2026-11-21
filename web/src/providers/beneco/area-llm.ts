@@ -49,7 +49,10 @@ export type BarangayScopeWire = z.infer<typeof BarangayScopeWireSchema>;
 export const BarangayAffectWireSchema = z.object({
   id: z.number().int().describe("beneco.barangays.id"),
   name: z.string(),
-  pcode: z.string().optional().describe("Philippine barangay code, if any"),
+  psgc: z
+    .string()
+    .optional()
+    .describe("10-digit PSGC code of the barangay, if any"),
   confidence,
   scope: BarangayScopeWireSchema,
 });
@@ -99,7 +102,10 @@ export type MunicipalityScopeWire = z.infer<typeof MunicipalityScopeWireSchema>;
 export const MunicipalityAffectWireSchema = z.object({
   id: z.number().int().describe("beneco.municipalities.id"),
   name: z.string(),
-  pcode: z.string().optional().describe("Philippine municipality code, if any"),
+  psgc: z
+    .string()
+    .optional()
+    .describe("10-digit PSGC code of the city or municipality, if any"),
   confidence,
   scope: MunicipalityScopeWireSchema,
 });
