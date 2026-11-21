@@ -12,6 +12,11 @@ Philippine government datasets are published separately, and each one describes 
 
 This project aims to make those datasets interconnected. The approach is to use the Philippine Standard Geographic Code (PSGC) as the common key. Every dataset that refers to a place gets tagged with its PSGC code, so records from different sources can be matched, compared, and visualized together.
 
+
+!!! Terms
+
+    Philippine Standard Geographic Code is the official system maintained by the Philippine Statistics Authority.
+
 ## Who it's for
 
 Researchers, developers, and data curators who work with Philippine public data and want to combine it without spending time on name cleanup.
@@ -24,22 +29,23 @@ Early stage. Ideas and structure are still being worked out.
 
 ```mermaid
 sequenceDiagram
-    participant Up as Upload
+    participant DS as Dataset
     participant CD as ColumnDetector
-    participant PL as Pipeline
-    participant T as Tiers
-    participant RQ as ReviewQueue
-    participant PS as PatternStore
+    participant PL as TaggingPipeline
+    participant R as PathResolver
+    participant P as Person
 
-    Up->>CD: DatasetReceived
-    CD->>PL: ColumnsDetected (DatasetProfile)
-    loop each row
-        PL->>T: RowToTag (row, parent)
-        T-->>PL: TagProposed (PlaceTag)
+    DS->>CD: sample rows
+    CD-->>PL: DatasetProfile (which columns name places)
+    loop each distinct place
+        PL->>R: Mention (what the row says)
+        R-->>PL: Candidates (best chain of places)
     end
-    PL-->>RQ: TagNeedsReview (PlaceTag)
-    RQ->>PS: DecisionConfirmed (ReviewDecision)
+    PL-->>DS: psgc_code, or needs_review
+    PL-->>P: places sent to review
 ```
+
+The diagram is a conceptual view of the flow. See [Architecture](architecture.md) for how the pieces are implemented.
 
 [open-data-portal]: https://data.bettergov.ph
 

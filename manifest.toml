@@ -1,0 +1,65 @@
+# Datasets to tag with PSGC codes.
+#
+#   just run              tag every dataset below and write the tagged copies
+#   just run memberships  tag one
+#   just eval             check the datasets marked eval = true against their baselines
+#
+# Paths are relative to this file. Each dataset takes:
+#
+#   name         short id, used for the default output and the eval baseline
+#   source       local file or https URL: .csv, .tsv, .json, .jsonl, or .parquet
+#   output       where the tagged copy goes (default: data/output/<name>.csv)
+#   level        finest level the data reports at; warns if detection finds less
+#   eval         include in `just eval`
+#   [datasets.columns]
+#                overrides when detection is wrong: a PSGC level
+#                (region, province, city_municipality, sub_municipality, barangay),
+#                free_text, or ignore
+#   description, attribution, license, url
+#                for people reading this file
+
+[reference]
+db = "data/psgc-v1.0.1.duckdb"
+
+[eval]
+baselines = "evals/baselines"
+
+[[datasets]]
+name = "memberships"
+source = "https://huggingface.co/datasets/bettergovph/raw-philippine-data/resolve/main/databases/memberships.parquet"
+level = "city_municipality"
+eval = true
+description = "Local officials' party memberships, 2004-2016. Tests old names and boundaries."
+attribution = "BetterGov.ph, raw-philippine-data"
+url = "https://huggingface.co/datasets/bettergovph/raw-philippine-data"
+
+[[datasets]]
+name = "openhalalan_winners"
+source = "https://github.com/RobertRLeung/OpenHalalan/releases/download/data-latest/NLE_Winners_2004-2025.csv"
+level = "city_municipality"
+eval = true
+description = "Every national and local election winner, 2004-2025."
+attribution = "Leung, R., Alejandro, A., Acuna, R., Buot, J., Go, C., & Nable, J. (2026). OpenHalalan (Version 2.0). https://doi.org/10.5281/zenodo.17783099"
+license = "ODbL v1.0"
+url = "https://data.bettergov.ph"
+
+[[datasets]]
+name = "critical_facilities"
+source = "https://huggingface.co/datasets/bettergovph/critical-facilities/resolve/main/facilities.json"
+level = "barangay"
+eval = true
+description = "55,829 hospitals, schools, fire and police stations. Points only: tests coordinates. Needs boundaries from ph-administrative-boundaries (see README)."
+attribution = "BetterGov.PH, consolidated from UP WebGIS critical-facility layers (webgis-static.up.edu.ph), retrieved 2026-11-12"
+url = "https://huggingface.co/datasets/bettergovph/critical-facilities"
+
+# [[datasets]]
+# name = "deped_schools"
+# source = "data/eval/basic_education_institutions.csv"
+# level = "barangay"
+# description = "DepEd masterlist of 60,924 schools, SY 2020-2021."
+# attribution = "Department of Education, via data.gov.ph; compiled on Kaggle by bendlikeabamboo"
+# license = "CC BY 4.0"
+# url = "https://www.kaggle.com/datasets/bendlikeabamboo/philippines-deped-basic-education-master-list-2020"
+#
+# [datasets.columns]
+# street_address = "free_text"

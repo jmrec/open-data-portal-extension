@@ -12,3 +12,11 @@ wheels/
 # Zensical
 site/
 **/*.private.*
+
+# data
+data/
+*.duckdb
+link/
+
+# MacOS
+.DS_Store
