@@ -124,8 +124,7 @@ function addLayers(map: MapLibreMap, theme: "light" | "dark") {
       type: "vector",
       url: env.VITE_TILE_SERVER_URL,
       promoteId: PROMOTE_ID,
-      encoding: "mlt",
-      maxzoom: MAX_ZOOM,
+      encoding: env.VITE_TILE_ENCODING,
     });
   }
   for (const level of LEVELS) {

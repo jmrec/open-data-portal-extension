@@ -56,8 +56,13 @@ test-integration *flags:
 build-boundaries name *flags:
     cd boundaries && uv run --package ph-administrative-boundaries cli build {{ name }} {{ flags }}
 
-# Serve the built boundary tiles with martin on http://localhost:3080.
+# Serve the built boundary tiles on http://localhost:3080, with the pmtiles CLI.
 tiles *flags:
+    pmtiles serve boundaries/data/processed --port 3080 --cors="*" --public-url http://localhost:3080 {{ flags }}
+
+# Serve them with martin in Docker instead; set VITE_TILE_ENCODING=mlt and
+# VITE_TILE_SERVER_URL=http://localhost:3080/boundaries in web/.env.
+tiles-martin *flags:
     docker compose -f boundaries/martin/compose.yml up {{ flags }}
 
 # Run a pnpm script in the web app, e.g. `just web dev` or `just web check`.

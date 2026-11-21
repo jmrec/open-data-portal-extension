@@ -46,7 +46,7 @@ municipality, province, and region. The web app in `web/` reads it:
 ```bash
 just export
 just build-boundaries boundaries   # once: the map tiles
-just tiles -d                      # serve them on http://localhost:3080
+just tiles                         # serve them on http://localhost:3080 (pmtiles CLI)
 just web dev                       # http://localhost:3000
 ```
 

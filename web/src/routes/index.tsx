@@ -22,12 +22,16 @@ type Search = { place?: string; level?: AdminLevel; dataset?: string };
 
 const ALL = "__all__";
 
+/** A 10-digit PSGC code; router.tsx keeps digit-only values as strings. */
+function psgcParam(value: unknown): string | undefined {
+  return typeof value === "string" && /^\d{10}$/.test(value)
+    ? value
+    : undefined;
+}
+
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    place:
-      typeof search.place === "string" && /^\d{10}$/.test(search.place)
-        ? search.place
-        : undefined,
+    place: psgcParam(search.place),
     level: LEVEL_IDS.includes(search.level as AdminLevel)
       ? (search.level as AdminLevel)
       : undefined,

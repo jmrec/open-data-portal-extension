@@ -11,7 +11,12 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
-    VITE_TILE_SERVER_URL: z.url().default("http://localhost:3080/boundaries"),
+    /** TileJSON of PH_Adm_Boundaries.pmtiles; `just tiles` serves it here. */
+    VITE_TILE_SERVER_URL: z
+      .url()
+      .default("http://localhost:3080/PH_Adm_Boundaries.json"),
+    /** "mlt" only behind martin, which converts on the fly. */
+    VITE_TILE_ENCODING: z.enum(["mvt", "mlt"]).default("mvt"),
   },
 
   runtimeEnv: {

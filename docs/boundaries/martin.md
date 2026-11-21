@@ -77,7 +77,7 @@ map.addSource("ph-country", {
 
 ```bash
 just build-boundaries boundaries   # builds data/processed/PH_Adm_Boundaries.pmtiles
-just tiles -d
+just tiles-martin -d
 ```
 
 The server will be available at `http://localhost:3080`.
