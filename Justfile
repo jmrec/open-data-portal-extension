@@ -27,10 +27,6 @@ build-reference tag="v1.0.1" released_on="2026-10-12":
         ${changes:+--changes "$changes"} \
         ${boundaries:+--boundaries "$boundaries"}
 
-# Link the tagged winners and critical facilities into DuckDB views (see sql/link.sql).
-link out="data/output/linked.duckdb":
-    uv run python -c "import duckdb, pathlib; duckdb.connect('{{ out }}').execute(pathlib.Path('sql/link.sql').read_text())"
-
 # Tag the datasets in manifest.toml, e.g. `just run` or `just run memberships`.
 run *args:
     uv run open-data-portal-extension run {{ args }}
@@ -47,3 +43,7 @@ try dataset *flags:
 compare-barangay name:
     uv run --no-project --python 3.13 --with barangay==2026.10.12.0 \
         python evals/compare_barangay.py evals/labels/{{ name }}.csv
+
+# Run the integration tests against the real reference database.
+test-integration *flags:
+    uv run pytest -m integration {{ flags }}

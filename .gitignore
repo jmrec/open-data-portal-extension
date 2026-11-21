@@ -13,9 +13,10 @@ wheels/
 site/
 **/*.private.*
 
-# PSGC source CSVs and built reference databases
+# data
 data/
 *.duckdb
+link/
 
 # MacOS
 .DS_Store

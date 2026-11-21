@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date
-from pathlib import Path
 
 import pytest
 
@@ -120,45 +119,3 @@ def test_parenthetical_names_become_aliases(source_dir, tmp_path):
         assert store.lookup(GeoLevel.PROVINCE, "not a province") == []
     finally:
         store.close()
-
-
-REAL_DB = Path(__file__).parent.parent / "data" / "psgc-v1.0.1.duckdb"
-
-
-@pytest.mark.skipif(not REAL_DB.exists(), reason="run `just build-reference` first")
-def test_real_release_resolves_saysain_bagac_bataan():
-    """The row that failed in the notebook, against the full release."""
-    from open_data_portal_extension.dataset import ColumnDetector
-    from open_data_portal_extension.models.tagging import TagStatus
-    from open_data_portal_extension.tagging import TaggingPipeline
-
-    store = ReferenceStore.open(REAL_DB)
-    try:
-        rows = [{"Location": "Saysain, Bagac, Bataan"}, {"Location": "Bataan"}]
-        profile = ColumnDetector().profile(rows, dataset_key="d")
-        pipeline = TaggingPipeline(store)
-        tags = [pipeline.tag_row(profile, row, row_id="") for row in rows]
-    finally:
-        store.close()
-    assert (tags[0].status, tags[0].code) == (TagStatus.AUTO, "0300802014")
-    assert (tags[1].status, tags[1].code) == (TagStatus.AUTO, "0300800000")
-
-
-@pytest.mark.skipif(not REAL_DB.exists(), reason="run `just build-reference` first")
-@pytest.mark.parametrize(
-    "location",
-    ["Orani, Bataan Philippines", "Orani, Bataan, Philippines", "Orani, Bataan"],
-)
-def test_real_release_ignores_the_country_name(location):
-    from open_data_portal_extension.dataset import ColumnDetector
-    from open_data_portal_extension.models.tagging import TagStatus
-    from open_data_portal_extension.tagging import TaggingPipeline
-
-    store = ReferenceStore.open(REAL_DB)
-    try:
-        rows = [{"Location": location}]
-        profile = ColumnDetector().profile(rows, dataset_key="d")
-        tag = TaggingPipeline(store).tag_row(profile, rows[0], row_id="")
-    finally:
-        store.close()
-    assert (tag.status, tag.code) == (TagStatus.AUTO, "0300809000")

@@ -35,6 +35,9 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: needs the real reference database (just build-reference)",
+]
 
 [tool.ruff.lint]
 extend-select = ["I"]
