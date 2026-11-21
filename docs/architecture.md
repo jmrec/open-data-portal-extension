@@ -75,7 +75,7 @@ row's hints that the chain explains.
 | Hint | Proposes |
 | --- | --- |
 | `code` | The place for a code, following the crosswalk. |
-| `name` | Places whose normalized name or alias matches. With no exact match, near-misses like "Laoagg" among the children of what the other hints found. |
+| `name` | Places whose normalized name or alias matches. With no exact match, near-misses among the children of what the other hints found: misspellings like "Laoagg", and a name with its former name appended, like "El Nido Bacuit" (rapidfuzz). |
 | `point` | The barangay the point falls in, or its ancestor at the tag's level. |
 
 | Row | Winner | Why |

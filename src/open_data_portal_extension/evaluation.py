@@ -120,7 +120,10 @@ def sample(
     if not columns and taggable:
         columns = list(taggable[0].values)
     seen = {_key(row, columns) for row in rows}
-    fresh = [p for p in taggable if _key(p.values, columns) not in seen]
+    fresh = sorted(
+        (p for p in taggable if _key(p.values, columns) not in seen),
+        key=lambda p: _key(p.values, columns),
+    )
     chosen = random.Random(seed).sample(fresh, min(size, len(fresh)))
 
     extra = [c for c in (rows[0] if rows else {}) if c.startswith("barangay_")]

@@ -16,6 +16,7 @@ from open_data_portal_extension.reference import ReferenceStore
 from open_data_portal_extension.resolution import PathResolver
 from open_data_portal_extension.tagging import TaggingPipeline
 from tests.catalog import (
+    BATAC,
     LAOAG,
     OLD_LAOAG,
     SAN_ISIDRO_NORTE,
@@ -73,6 +74,23 @@ def test_resolver_falls_back_to_fuzzy_inside_the_parent(reference):
     candidates = _resolve(reference, {"Province": "Ilocos Norte", "City": "Laoagg"})
     assert candidates[0].code == LAOAG
     assert candidates[0].method is MatchMethod.NAME_FUZZY
+
+
+def test_fuzzy_matches_a_name_with_its_former_name_appended(reference):
+    for city in ("Batac Old Name", "Bat ac"):
+        candidates = _resolve(reference, {"Province": "Ilocos Norte", "City": city})
+        assert candidates[0].code == BATAC, city
+        assert candidates[0].method is MatchMethod.NAME_FUZZY
+
+
+def test_a_string_naming_two_towns_is_ambiguous(reference):
+    tag = TaggingPipeline(reference).tag_row(
+        _profile([{"Province": "Ilocos Norte", "City": "Laoag Batac"}]),
+        {"Province": "Ilocos Norte", "City": "Laoag Batac"},
+        row_id="1",
+    )
+    assert tag.status is TagStatus.NEEDS_REVIEW
+    assert {c.code for c in tag.candidates[:2]} == {LAOAG, BATAC}
 
 
 def test_resolver_follows_the_crosswalk_for_old_codes(reference):

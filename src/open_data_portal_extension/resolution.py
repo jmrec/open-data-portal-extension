@@ -5,16 +5,33 @@ of the mention its chain (the place, its ancestors and former parents) explains.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from difflib import SequenceMatcher
+
+from rapidfuzz import fuzz, process
 
 from .models.mention import Hint, Mention
-from .models.psgc import GeoLevel, PsgcCode
+from .models.psgc import GeoLevel, PsgcCode, PsgcEntry
 from .models.tagging import MatchCandidate, MatchMethod
 from .normalization import normalize_name
 from .reference import Location, Point, ReferenceStore
 
 _ORDER = list(GeoLevel)
 """coarsest to finest"""
+
+
+def similarity(a: str, b: str, *, score_cutoff: float | None = None, **_) -> float:
+    """How alike two normalized names are, 0 to 100.
+
+    The higher of the edit ratio ("laoagg" for "laoag", "sal lapadan" for
+    "sallapadan") and the token-set ratio, which scores 100 when one name's
+    words are all in the other: datasets often append a former name, as in
+    "Lambayong Mariano Marcos" or "El Nido Bacuit". Two towns both inside one
+    string tie, and the tie goes to review.
+    """
+    return max(fuzz.ratio(a, b), fuzz.token_set_ratio(a, b))
+
+
+SCORER = similarity
+"""Swappable for experiments; see ``similarity``."""
 
 
 class PathResolver:
@@ -45,6 +62,7 @@ class PathResolver:
         self._fuzzy_limit = fuzzy_limit
         self._nearby_score = nearby_score
         self._paths: dict[PsgcCode, frozenset[PsgcCode]] = {}
+        self._names: dict[PsgcCode, str] = {}
 
     def resolve(self, mention: Mention) -> list[MatchCandidate]:
         """Candidates at one level, best first."""
@@ -134,27 +152,35 @@ class PathResolver:
         normalized = normalize_name(hint.text)
         if not normalized:
             return []
-        pool = [self._reference.children(None)]
-        pool.extend(self._reference.children(anchor) for anchor in anchors)
         wanted = set(_levels(hint))
-        scored = []
-        for entry in (e for group in pool for e in group):
-            if entry.level not in wanted:
-                continue
-            ratio = SequenceMatcher(
-                None, normalized, normalize_name(entry.name)
-            ).ratio()
-            if ratio >= self._fuzzy_threshold:
-                scored.append(
-                    MatchCandidate(
-                        code=entry.code,
-                        level=entry.level,
-                        score=ratio,
-                        method=MatchMethod.NAME_FUZZY,
-                    )
-                )
-        scored.sort(key=lambda candidate: candidate.score, reverse=True)
-        return scored[: self._fuzzy_limit]
+        pool = [
+            entry
+            for parent in (None, *anchors)
+            for entry in self._reference.children(parent)
+            if entry.level in wanted
+        ]
+        matches = process.extract(
+            normalized,
+            [self._normalized(entry) for entry in pool],
+            scorer=SCORER,
+            score_cutoff=self._fuzzy_threshold * 100,
+            limit=self._fuzzy_limit,
+        )
+        return [
+            MatchCandidate(
+                code=pool[index].code,
+                level=pool[index].level,
+                score=score / 100,
+                method=MatchMethod.NAME_FUZZY,
+            )
+            for _, score, index in matches
+        ]
+
+    def _normalized(self, entry: PsgcEntry) -> str:
+        cached = self._names.get(entry.code)
+        if cached is None:
+            cached = self._names[entry.code] = normalize_name(entry.name)
+        return cached
 
     def _point(self, hint: Hint) -> list[MatchCandidate]:
         """The located barangay, or its ancestor at the hint's level."""

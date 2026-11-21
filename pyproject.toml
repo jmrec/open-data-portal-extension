@@ -12,6 +12,7 @@ dependencies = [
     "fastapi[standard]>=0.163.2",
     "openpyxl>=3.1.5",
     "pydantic>=2.14.3",
+    "rapidfuzz>=3.14",
     "typer>=0.29.1",
 ]
 

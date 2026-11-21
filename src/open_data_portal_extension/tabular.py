@@ -95,11 +95,15 @@ class TableResult:
             },
             "rows": self.rows,
             "distinct_places": self.distinct_places,
-            "rows_by_status": dict(self.rows_by_status),
-            "places_by_status": dict(self.places_by_status),
+            "rows_by_status": dict(sorted(self.rows_by_status.items())),
+            "places_by_status": dict(sorted(self.places_by_status.items())),
             "auto_rate": round(self.auto_rate, 4),
-            "auto_rows_by_level": dict(self.auto_rows_by_level),
-            **({"points": dict(self.points)} if self.coordinates else {}),
+            "auto_rows_by_level": dict(sorted(self.auto_rows_by_level.items())),
+            **(
+                {"points": dict(sorted(self.points.items()))}
+                if self.coordinates
+                else {}
+            ),
         }
 
 

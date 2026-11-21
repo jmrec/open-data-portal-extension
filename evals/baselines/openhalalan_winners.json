@@ -9,18 +9,18 @@
   "rows": 157333,
   "distinct_places": 2147,
   "rows_by_status": {
-    "auto": 151984,
-    "needs_review": 5297,
+    "auto": 156206,
+    "needs_review": 1075,
     "no_place": 52
   },
   "places_by_status": {
-    "auto": 1876,
-    "needs_review": 271,
+    "auto": 1965,
+    "needs_review": 182,
     "no_place": 1
   },
-  "auto_rate": 0.966,
+  "auto_rate": 0.9928,
   "auto_rows_by_level": {
-    "city_municipality": 138841,
+    "city_municipality": 143063,
     "province": 13143
   }
 }
