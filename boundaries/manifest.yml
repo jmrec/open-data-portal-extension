@@ -11,6 +11,9 @@ datasets:
       - id: country_geo
         run: >
           mapshaper -i {country} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - id: country_tiles
         run: >
@@ -23,6 +26,9 @@ datasets:
       - id: regions_geo
         run: >
           mapshaper -i {regions} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - id: regions_tiles
         run: >
@@ -36,6 +42,9 @@ datasets:
       - id: provdists_geo
         run: >
           mapshaper -i {provdists} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - id: provdists_tiles
         run: >
@@ -49,6 +58,9 @@ datasets:
       - id: municities_geo
         run: >
           mapshaper -i {municities} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - id: municities_tiles
         run: >
@@ -63,6 +75,9 @@ datasets:
       - id: bgysubmuns_geo
         run: >
           mapshaper -i {bgysubmuns} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - id: bgysubmuns_tiles
         run: >
@@ -87,6 +102,9 @@ datasets:
       - id: bgysubmuns_geo
         run: >
           mapshaper -i {in} -proj wgs84 -clean allow-overlaps
+          -each 'for (var k in this.properties) if (/^adm[0-9]_psgc$/.test(k)
+          && this.properties[k] != null) this.properties[k] =
+          String(this.properties[k]).padStart(10, "0")'
           -o {out} precision=0.000001
       - run: >
           duckdb -c "INSTALL spatial; LOAD spatial;
