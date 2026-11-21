@@ -1,0 +1,4 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[124.7208,8.2431],[124.7200,8.2452],[124.7180,8.2443],[124.7208,8.2431]]]},"properties":{"adm1_psgc":1000000000,"adm1_en":"Region X (Northern Mindanao)","adm2_psgc":1001300000,"adm2_en":"Bukidnon","adm3_psgc":1001301000,"adm3_en":"Malaybalay","adm4_psgc":1001301001,"adm4_en":"Balintad","geo_level":"Bgy","geom_src":"source","len_crs":21083,"area_crs":9168129,"len_km":21,"area_km2":9}},
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[124.7135,8.2477],[124.7122,8.2494],[124.7098,8.2498],[124.7135,8.2477]]]},"properties":{"adm1_psgc":1000000000,"adm1_en":"Region X (Northern Mindanao)","adm2_psgc":1001300000,"adm2_en":"Bukidnon","adm3_psgc":1001301000,"adm3_en":"Malaybalay","adm4_psgc":1001301002,"adm4_en":"Buenavista","geo_level":"Bgy","geom_src":"source","len_crs":12036,"area_crs":5983773,"len_km":12,"area_km2":5}}
+]}

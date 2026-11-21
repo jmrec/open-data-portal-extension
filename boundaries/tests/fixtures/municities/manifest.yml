@@ -1,0 +1,7 @@
+datasets:
+  municities:
+    source: raw/municities/*.json
+    steps:
+      - run: mapshaper -i {in} -clean -simplify visvalingam 10% keep-shapes -o {out} precision=0.00001
+      - run: tippecanoe -o {out} -f -P --layer=municities -Z4 -z14 {in}
+        out: municities.pmtiles

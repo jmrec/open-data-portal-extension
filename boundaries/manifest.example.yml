@@ -1,0 +1,35 @@
+datasets:
+  country:
+    # Sources are read from `data/`. A mapping names each file so steps can read it.
+    source:
+      barangays: raw/country.0.1.json
+      roads: raw/roads.json
+
+    steps:
+      # `id` names this step's output so later steps can read it.
+      # {barangays} and {roads} are the named sources above.
+      - id: brgy
+        run: >
+          mapshaper -i {barangays} -clean
+          -simplify visvalingam 10% keep-shapes
+          -o {out} precision=0.00001
+
+      - id: brgy_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=barangays -Z4 -z14
+          --simplify-only-low-zooms
+          --detect-shared-borders
+          --drop-densest-as-needed
+          {brgy}
+
+      - id: road_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=roads -Z4 -z14
+          {roads}
+
+      # {in} is the previous step's output. This step reads two named steps instead.
+      # The last step sets `out`: the final file, written to data/processed/.
+      - run: tile-join -o {out} -f {brgy_tiles} {road_tiles}
+        out: country.pmtiles

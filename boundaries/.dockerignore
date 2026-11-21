@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.DS_Store
+.env
+.env.example
+.env.*
+misc
+
+data/
+.cache
+.venv
+.ruff_cache
+.pytest_cache
+site
+**/__pycache__

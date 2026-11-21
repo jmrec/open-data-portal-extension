@@ -1,0 +1,104 @@
+datasets:
+  boundaries:
+    source:
+      country: raw/Country/PH_Adm0_Country.shp
+      regions: raw/Regions/PH_Adm1_Regions.shp
+      provdists: raw/ProvDists/PH_Adm2_ProvDists.shp
+      municities: raw/MuniCities/PH_Adm3_MuniCities.shp
+      bgysubmuns: raw/BgySubMuns/PH_Adm4_BgySubMuns.shp
+
+    steps:
+      - id: country_geo
+        run: >
+          mapshaper -i {country} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - id: country_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=PH_Adm0_Country -Z0 -z12
+          --simplify-only-low-zooms
+          {country_geo}
+        out: PH_Adm0_Country.pmtiles
+
+      - id: regions_geo
+        run: >
+          mapshaper -i {regions} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - id: regions_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=PH_Adm1_Regions -Z0 -z12
+          --simplify-only-low-zooms
+          --detect-shared-borders
+          {regions_geo}
+        out: PH_Adm1_Regions.pmtiles
+
+      - id: provdists_geo
+        run: >
+          mapshaper -i {provdists} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - id: provdists_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=PH_Adm2_ProvDists -Z3 -z12
+          --simplify-only-low-zooms
+          --detect-shared-borders
+          {provdists_geo}
+        out: PH_Adm2_ProvDists.pmtiles
+
+      - id: municities_geo
+        run: >
+          mapshaper -i {municities} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - id: municities_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=PH_Adm3_MuniCities -Z5 -z12
+          --simplify-only-low-zooms
+          --detect-shared-borders
+          --drop-densest-as-needed
+          {municities_geo}
+        out: PH_Adm3_MuniCities.pmtiles
+
+      - id: bgysubmuns_geo
+        run: >
+          mapshaper -i {bgysubmuns} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - id: bgysubmuns_tiles
+        run: >
+          tippecanoe -o {out} -f -P
+          --layer=PH_Adm4_BgySubMuns -Z6 -z12
+          --simplify-only-low-zooms
+          --detect-shared-borders
+          --drop-densest-as-needed
+          {bgysubmuns_geo}
+        out: PH_Adm4_BgySubMuns.pmtiles
+
+      - run: >
+          tile-join -o {out} -f -pk
+          {country_tiles} {regions_tiles} {provdists_tiles}
+          {municities_tiles} {bgysubmuns_tiles}
+        out: PH_Adm_Boundaries.pmtiles
+
+  bgysubmuns_parquet:
+    source: raw/BgySubMuns/PH_Adm4_BgySubMuns.shp
+
+    steps:
+      - id: bgysubmuns_geo
+        run: >
+          mapshaper -i {in} -proj wgs84 -clean allow-overlaps
+          -o {out} precision=0.000001
+      - run: >
+          duckdb -c "INSTALL spatial; LOAD spatial;
+          COPY (
+            SELECT
+              lpad(CAST(CAST(adm1_psgc AS BIGINT) AS VARCHAR), 10, '0') AS adm1_psgc,
+              lpad(CAST(CAST(adm2_psgc AS BIGINT) AS VARCHAR), 10, '0') AS adm2_psgc,
+              lpad(CAST(CAST(adm3_psgc AS BIGINT) AS VARCHAR), 10, '0') AS adm3_psgc,
+              lpad(CAST(CAST(adm4_psgc AS BIGINT) AS VARCHAR), 10, '0') AS adm4_psgc,
+              adm4_en, geo_level,
+              ST_CollectionExtract(ST_MakeValid(geom), 3) AS geom
+            FROM ST_Read('{bgysubmuns_geo}')
+            ORDER BY adm4_psgc
+          ) TO '{out}' (FORMAT parquet, COMPRESSION zstd)"
+        out: PH_Adm4_BgySubMuns.parquet

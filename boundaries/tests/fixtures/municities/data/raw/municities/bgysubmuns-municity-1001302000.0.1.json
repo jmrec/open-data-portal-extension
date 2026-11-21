@@ -1,0 +1,4 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[124.6084,8.1542],[124.6071,8.1561],[124.6048,8.1553],[124.6084,8.1542]]]},"properties":{"adm1_psgc":1000000000,"adm1_en":"Region X (Northern Mindanao)","adm2_psgc":1001300000,"adm2_en":"Bukidnon","adm3_psgc":1001302000,"adm3_en":"Cabanglasan","adm4_psgc":1001302001,"adm4_en":"Cabulohan","geo_level":"Bgy","geom_src":"source","len_crs":18544,"area_crs":7349012,"len_km":19,"area_km2":7}},
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[124.6312,8.1707],[124.6298,8.1725],[124.6274,8.1716],[124.6312,8.1707]]]},"properties":{"adm1_psgc":1000000000,"adm1_en":"Region X (Northern Mindanao)","adm2_psgc":1001300000,"adm2_en":"Bukidnon","adm3_psgc":1001302000,"adm3_en":"Cabanglasan","adm4_psgc":1001302002,"adm4_en":"Can-ayan","geo_level":"Bgy","geom_src":"source","len_crs":14210,"area_crs":6210884,"len_km":14,"area_km2":6}}
+]}
