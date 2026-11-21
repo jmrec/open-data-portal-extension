@@ -1,8 +1,6 @@
 import { createHash } from "node:crypto";
 import { inArray, notInArray, sql } from "drizzle-orm";
-import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
-import { getClient } from "../db.ts";
-import { env } from "../env.ts";
+import { getDb } from "../db.ts";
 import type {
   AreaResolution,
   AreaTask,
@@ -47,26 +45,12 @@ export interface ResolutionWrite {
   resolution: AreaResolution;
 }
 
-type ResolvedOutagesDb = NeonHttpDatabase;
-
-let db: ResolvedOutagesDb | undefined;
-
-async function getStoreDb(): Promise<ResolvedOutagesDb> {
-  if (db) return db;
-  const client = getClient();
-  if (!client) {
-    throw new Error("DATABASE_URL is not set; cannot reach the durable store");
-  }
-  db = drizzle({ client });
-  return db;
-}
-
 export async function getResolvedOutageRows(
   companyId: string,
   outageIds: AreaTask["outageId"][],
 ): Promise<ResolutionRow[]> {
-  if (outageIds.length === 0 || !env.DATABASE_URL) return [];
-  const storeDb = await getStoreDb();
+  if (outageIds.length === 0) return [];
+  const storeDb = getDb();
   const rows = await storeDb
     .select()
     .from(resolvedOutages)
@@ -80,8 +64,8 @@ export async function getResolvedOutageRows(
 export async function upsertResolvedOutageRows(
   rows: ResolutionWrite[],
 ): Promise<void> {
-  if (rows.length === 0 || !env.DATABASE_URL) return;
-  const storeDb = await getStoreDb();
+  if (rows.length === 0) return;
+  const storeDb = getDb();
   await storeDb
     .insert(resolvedOutages)
     .values(
@@ -115,8 +99,7 @@ export async function pruneResolvedOutages(
   companyId: string,
   liveOutageIds: AreaTask["outageId"][],
 ): Promise<void> {
-  if (!env.DATABASE_URL) return;
-  const storeDb = await getStoreDb();
+  const storeDb = getDb();
   if (liveOutageIds.length === 0) {
     await storeDb
       .delete(resolvedOutages)

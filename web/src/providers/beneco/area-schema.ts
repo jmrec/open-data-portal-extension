@@ -1,22 +1,20 @@
-import { bigint, pgSchema, varchar } from "drizzle-orm/pg-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const beneco = pgSchema("beneco");
-
-export const municipalities = beneco.table("municipalities", {
-  id: bigint("id", { mode: "number" }).primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+export const municipalities = sqliteTable("beneco_municipalities", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
   /** OCHA/HDX pcode, e.g. PH1401102. Kept for reference; use `psgc`. */
-  pcode: varchar("pcode", { length: 25 }),
-  psgc: varchar("psgc", { length: 10 }),
+  pcode: text("pcode"),
+  psgc: text("psgc"),
 });
 
-export const barangays = beneco.table("barangays", {
-  id: bigint("id", { mode: "number" }).primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  municipalityId: bigint("municipality_id", { mode: "number" })
+export const barangays = sqliteTable("beneco_barangays", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+  municipalityId: integer("municipality_id")
     .notNull()
     .references(() => municipalities.id),
   /** OCHA/HDX pcode, e.g. PH1401102142. Kept for reference; use `psgc`. */
-  pcode: varchar("pcode", { length: 25 }),
-  psgc: varchar("psgc", { length: 10 }),
+  pcode: text("pcode"),
+  psgc: text("psgc"),
 });

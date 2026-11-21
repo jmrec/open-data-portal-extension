@@ -9,3 +9,8 @@ services:
       - .env.production
     ports:
       - "3000:3000"
+    volumes:
+      - beacon-data:/app/data
+
+volumes:
+  beacon-data:

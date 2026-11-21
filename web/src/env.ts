@@ -4,7 +4,8 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     SERVER_URL: z.url().optional(),
-    DATABASE_URL: z.string().optional(),
+    DATABASE_PATH: z.string().default("data/beacon.sqlite"),
+    DATABASE_MIGRATIONS: z.string().default("drizzle"),
 
     BENECO_UNSCHEDULED_OUTAGE_URL: z.url().optional(),
     BENECO_SCHEDULED_OUTAGE_URL: z.url().optional(),

@@ -1,7 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
-
-import { getClient } from "../../db.ts";
+import { getDb } from "../../db.ts";
 import { barangays, municipalities } from "./area-schema.ts";
 
 type Municipality = Pick<
@@ -13,18 +11,8 @@ type Barangay = Pick<
   "id" | "name" | "psgc" | "municipalityId"
 > & { municipality: string };
 
-let db: NeonHttpDatabase | undefined;
-
-async function getDb(): Promise<NeonHttpDatabase | undefined> {
-  const client = getClient();
-  if (!client) return undefined;
-  db ??= drizzle({ client });
-  return db;
-}
-
 async function listMunicipalities(): Promise<Municipality[]> {
-  const db = await getDb();
-  if (!db) return [];
+  const db = getDb();
   return await db
     .select({
       id: municipalities.id,
@@ -39,8 +27,7 @@ async function listMunicipalities(): Promise<Municipality[]> {
 async function findMunicipality(
   name: string,
 ): Promise<Municipality | undefined> {
-  const db = await getDb();
-  if (!db) return undefined;
+  const db = getDb();
   const q = name.trim().toLowerCase();
   if (!q) return undefined;
 
@@ -73,8 +60,7 @@ async function suggestMunicipalities(
   name: string,
   limit = 5,
 ): Promise<Municipality[]> {
-  const db = await getDb();
-  if (!db) return [];
+  const db = getDb();
   const q = name.trim().toLowerCase();
   if (!q) return [];
   return await db
@@ -95,8 +81,7 @@ async function suggestMunicipalities(
 async function barangaysForMunicipality(
   municipalityId: number,
 ): Promise<Barangay[]> {
-  const db = await getDb();
-  if (!db) return [];
+  const db = getDb();
   return await db
     .select({
       id: barangays.id,

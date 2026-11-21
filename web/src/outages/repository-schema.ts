@@ -1,31 +1,29 @@
 import {
-  bigint,
   index,
-  jsonb,
-  pgTable,
+  integer,
   primaryKey,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
 import type {
   AreaResolution,
   AreaTask,
 } from "../providers/beneco/area-types.ts";
 
-export const resolvedOutages = pgTable(
+export const resolvedOutages = sqliteTable(
   "resolved_outages",
   {
-    companyId: varchar("company_id", { length: 64 })
+    companyId: text("company_id").notNull().default("beneco"),
+    outageId: integer("outage_id").notNull(),
+    kind: text("kind").$type<AreaTask["kind"]>().notNull(),
+    key: text("key").notNull(),
+    fingerprint: text("fingerprint").notNull(),
+    resolution: text("resolution", { mode: "json" })
+      .$type<AreaResolution>()
+      .notNull(),
+    resolvedAt: integer("resolved_at", { mode: "timestamp_ms" })
       .notNull()
-      .default("beneco"),
-    outageId: bigint("outage_id", { mode: "number" }).notNull(),
-    kind: varchar("kind", { length: 16 }).$type<AreaTask["kind"]>().notNull(),
-    key: varchar("key", { length: 40 }).notNull(),
-    fingerprint: varchar("fingerprint", { length: 64 }).notNull(),
-    resolution: jsonb("resolution").$type<AreaResolution>().notNull(),
-    resolvedAt: timestamp("resolved_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date()),
   },
   (table) => [
     primaryKey({ columns: [table.companyId, table.outageId] }),
