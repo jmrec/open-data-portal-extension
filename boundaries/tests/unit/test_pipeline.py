@@ -10,9 +10,6 @@ from pathlib import Path
 import pytest
 import structlog
 import yaml
-from structlog.testing import LogCapture
-from structlog.typing import EventDict
-
 from ph_administrative_boundaries.build import (
     BuildPipeline,
     JsonCache,
@@ -21,6 +18,8 @@ from ph_administrative_boundaries.build import (
 )
 from ph_administrative_boundaries.ingest import LocalDataIngestor
 from ph_administrative_boundaries.manifest import ManifestError, YamlManifest
+from structlog.testing import LogCapture
+from structlog.typing import EventDict
 
 MAPSHAPER = "mapshaper -i {in} -clean -o {out}"
 TIPPECANOE = "tippecanoe -o {out} -f --layer=country {in}"

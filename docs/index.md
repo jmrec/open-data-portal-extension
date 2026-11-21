@@ -32,7 +32,7 @@ icon: lucide/rocket
     just build-reference
     ```
 
-    `just build-reference` downloads the PSGC release and builds `data/psgc-v1.0.1.duckdb`. To tag coordinates as well, first build the barangay boundaries in [ph-administrative-boundaries](https://github.com/jmrec/ph-administrative-boundaries) (`uv run cli build bgysubmuns_parquet`).
+    `just build-reference` downloads the PSGC release and builds `data/psgc-v1.0.1.duckdb`. To tag coordinates as well, first build the barangay boundaries with `just build-boundaries bgysubmuns_parquet`.
 
 ## Usage
 

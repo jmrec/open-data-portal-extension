@@ -76,11 +76,8 @@ map.addSource("ph-country", {
 ### Quick Start
 
 ```bash
-git clone https://github.com/jmrec/ph-administrative-boundaries.git
-
-cd ph-administrative-boundaries/martin
-
-docker compose up -d
+just build-boundaries boundaries   # builds data/processed/PH_Adm_Boundaries.pmtiles
+just tiles -d
 ```
 
 The server will be available at `http://localhost:3080`.
@@ -91,7 +88,7 @@ curl http://localhost:3080/catalog
 ```
 
 ### Configuration
-Tile sources are defined in /martin/config.yml. To use your own local PMTiles files instead of the remote CDN, update the paths:
+Tile sources are defined in `boundaries/martin/config.yml`. The `boundaries` source serves the locally built tiles. To use your own local PMTiles files instead of the remote CDN, update the paths:
 
 ```yml hl_lines="4"
 pmtiles:

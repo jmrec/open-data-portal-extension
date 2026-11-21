@@ -106,7 +106,7 @@ turns it into:
   Island Region, or Davao del Sur for towns now in Davao Occidental.
 
 With `--boundaries`, barangay polygons are loaded as well, from the
-`PH_Adm4_BgySubMuns.parquet` GeoParquet that ph-administrative-boundaries
+`PH_Adm4_BgySubMuns.parquet` GeoParquet that `boundaries/`
 builds. They are stored in UTM zone 51N and simplified by 1 m.
 
 The database is a build output: rebuilding it from the same release gives the

@@ -78,7 +78,7 @@ def build_reference(
         Path | None,
         typer.Option(
             help="Barangay boundaries as GeoParquet (PH_Adm4_BgySubMuns.parquet "
-            "from ph-administrative-boundaries), for tagging coordinates."
+            "built in boundaries/), for tagging coordinates."
         ),
     ] = None,
 ) -> None:

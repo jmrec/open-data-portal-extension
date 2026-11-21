@@ -14,6 +14,11 @@ nav = [
   { "Get started" = "index.md" },
   { "About the project" = "about.md" },
   { "Architecture" = "architecture.md" },
+  { "Boundaries" = [
+    { "Manifest schema" = "boundaries/schema.md" },
+    { "Serving tiles" = "boundaries/martin.md" },
+    { "Diagrams" = "boundaries/diagrams.md" },
+  ] },
   { "Contributing" = "contributors.md" },
 ]
 

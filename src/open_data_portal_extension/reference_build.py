@@ -290,7 +290,7 @@ def _insert(connection, table: str, rows: list[tuple], conflict: str = "") -> No
 
 
 def _load_boundaries(connection, path: Path, *, simplify_m: float = 1.0) -> int:
-    """Load ``PH_Adm4_BgySubMuns.parquet`` from ph-administrative-boundaries.
+    """Load ``PH_Adm4_BgySubMuns.parquet`` built in ``boundaries/``.
 
     Sub-municipalities are skipped: they overlap their barangays.
     """

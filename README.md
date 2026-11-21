@@ -3,8 +3,8 @@
 List your datasets in [`manifest.toml`](manifest.toml), then run them:
 
 ```bash
-# optional, to tag coordinates: in ../ph-administrative-boundaries run
-# `uv run cli build bgysubmuns_parquet` (or set PSGC_BOUNDARIES to the .parquet)
+# optional, to tag coordinates: run
+# `just build-boundaries bgysubmuns_parquet` (or set PSGC_BOUNDARIES to the .parquet)
 just build-reference   # once: download PSGC and build the reference database
 just run               # tag every dataset in the manifest
 just run memberships   # or just one

@@ -6,8 +6,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-from typer.testing import CliRunner
-
 from ph_administrative_boundaries.build import (
     BuildPipeline,
     JsonCache,
@@ -17,6 +15,7 @@ from ph_administrative_boundaries.build import (
 from ph_administrative_boundaries.cli import app
 from ph_administrative_boundaries.ingest import LocalDataIngestor, sha256_file
 from ph_administrative_boundaries.manifest import ManifestError, YamlManifest
+from typer.testing import CliRunner
 
 SOURCE = Path(__file__).resolve().parent / "fixtures" / "country" / "country.0.1.json"
 

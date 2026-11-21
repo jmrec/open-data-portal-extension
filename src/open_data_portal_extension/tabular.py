@@ -315,8 +315,8 @@ def _locate(connection, reference: ReferenceStore, result: TableResult):
     if not reference.has_boundaries():
         result.notes.append(
             "Coordinates were found, but the reference has no boundaries, so they "
-            "were not used. Build PH_Adm4_BgySubMuns.parquet in "
-            "ph-administrative-boundaries, then run `just build-reference`."
+            "were not used. Run `just build-boundaries bgysubmuns_parquet`, then "
+            "`just build-reference`."
         )
         return None
     located = reference.locate(points)

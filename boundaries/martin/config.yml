@@ -4,6 +4,11 @@ cache_size_mb: 512
 
 pmtiles:
   sources:
+    # Built by `just build-boundaries boundaries`; mounted from data/processed.
+    boundaries:
+      path: /data/PH_Adm_Boundaries.pmtiles
+      type: mvt
+      convert_to_mlt: auto
     # benguet:
     #   path: https://assets.jmrecondo.com/ph-administrative-boundaries/benguet-mlt.pmtiles
     #   type: mlt

@@ -2,12 +2,10 @@ services:
   martin:
     image: ghcr.io/maplibre/martin:1.15.0
     container_name: "${MARTIN_CONTAINER_NAME:-martin}"
-
-    # Pass the following flag to enable the web UI
-    # command: ["--webui", "enable-for-all", "--config", "<path-to-yaml>"]
-    
+    # Add "--webui", "enable-for-all" to browse the sources.
+    command: ["--config", "/config/config.yml"]
     ports:
       - "${MARTIN_PORT:-3080}:3080"
     volumes:
-      - "${LOCAL_WORKSPACE_FOLDER:-.}/data:/data:ro"
-      - "${LOCAL_WORKSPACE_FOLDER:-.}/config:/config:ro"
+      - "../data/processed:/data:ro"
+      - "./config.yml:/config/config.yml:ro"

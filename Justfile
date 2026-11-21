@@ -10,7 +10,7 @@ library-skills *flags:
 tree:
     tree --dirsfirst -I ".agents|.cache|.venv|site|__pycache__" .
 
-boundaries := env("PSGC_BOUNDARIES", "../ph-administrative-boundaries/data/processed/PH_Adm4_BgySubMuns.parquet")
+boundaries := env("PSGC_BOUNDARIES", "boundaries/data/processed/PH_Adm4_BgySubMuns.parquet")
 
 # Download one release's PSGC CSVs and build the reference database.
 build-reference tag="v1.0.1" released_on="2026-10-12":
@@ -47,3 +47,21 @@ compare-barangay name:
 # Run the integration tests against the real reference database.
 test-integration *flags:
     uv run pytest -m integration {{ flags }}
+
+# Build a boundaries dataset, e.g. `just build-boundaries boundaries` or `just build-boundaries bgysubmuns_parquet`.
+build-boundaries name *flags:
+    cd boundaries && uv run --package ph-administrative-boundaries cli build {{ name }} {{ flags }}
+
+# Serve the built boundary tiles with martin on http://localhost:3080.
+tiles *flags:
+    docker compose -f boundaries/martin/compose.yml up {{ flags }}
+
+# Run a pnpm script in the web app, e.g. `just web dev` or `just web check`.
+web *args:
+    pnpm -C web {{ args }}
+
+# Run the tagger, boundaries, and web checks.
+test:
+    uv run pytest
+    cd boundaries && uv run --package ph-administrative-boundaries pytest
+    pnpm -C web check
