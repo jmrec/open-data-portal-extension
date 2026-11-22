@@ -13,6 +13,13 @@
       "skillPath": "skills/ag-update/SKILL.md",
       "computedHash": "8419b66c52e36abf26d480522571217bfd70d9a6f1db2caf90fa53e98d002235"
     },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "commit": "b49177d32788f2dc585c42831d845dacf1ebed2c",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "08bd5bf141cb507f46bd8347890cd985865606f15adf88295ed3a73bc9ad5d96"
+    },
     "likec4-dsl": {
       "source": "likec4.dev",
       "sourceUrl": "https://likec4.dev/",
