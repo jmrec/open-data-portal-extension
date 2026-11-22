@@ -21,3 +21,10 @@ link/
 
 # MacOS
 .DS_Store
+
+# Local env and caches
+.env
+misc/
+.cache
+.ruff_cache
+.pytest_cache
